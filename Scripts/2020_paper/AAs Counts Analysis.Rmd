@@ -1,0 +1,273 @@
+---
+title: "AAs Count Analysis"
+author: "Thomas Wagner"
+date: "8/24/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### For GCN4 data ###
+```{r load data and libraries}
+library(tidyverse)
+library(stringr)
+library(stringi)
+hahn_library<-readRDS('C:/Users/tmwagner/Documents/GitHub/summer_2020_research/datasets/hahn_tads.rds')
+```
+
+```{r count occurrences of each amino acid in each sequence}
+All_AAs_1<-c('A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y')
+counts<-matrix(nrow= nrow(hahn_library), ncol = length(All_AAs_1))  
+i<-1
+j<-1
+for ( i in 1:nrow(hahn_library)){
+  for ( j in 1:length(All_AAs_1)){
+    counts[i, j]<-str_count(hahn_library$sequence[i], All_AAs_1[j])
+  }
+}
+counts<-data.frame(counts)
+```
+
+```{r binding the numbers of dipeptides within hold to the dipeptide names }
+colnames(counts)=All_AAs_1
+
+hahn_hold<-cbind(hahn_library, counts)
+```
+
+```{r change to character}
+hahn_hold$AD_set<-as.character(hahn_hold$AD_set)
+class(hahn_hold$AD_set)
+```
+
+```{r save dataframe as an rds file for later use}
+saveRDS(hahn_hold, 'hahn_All_AAs_counts.rds')
+```
+
+```{r get lives and dies from hahn_hold}
+dies<-filter(hahn_hold,AD_set=="AD_negative")%>%as.data.frame()
+lives<-filter(hahn_hold,AD_set=="AD_positive")%>%as.data.frame()
+```
+
+```{r find total occurrences for each AA within the living and dying sets}
+livefrequencyhold<- matrix( nrow = 2, ncol= length(hahn_hold))
+livefrequencyhold<-lapply(lives[,c(10:29)], sum)%>%as.data.frame()%>%t()%>%as.data.frame()
+colnames(livefrequencyhold)[1]<-"count"
+
+diefrequencyhold<- matrix( nrow = 2, ncol= length(hahn_hold))
+diefrequencyhold<-lapply(dies[,c(10:29)], sum)%>%as.data.frame()%>%t()%>%as.data.frame()
+colnames(diefrequencyhold)[1]<-"count"
+```
+
+```{r combining the living and dying occurrences into one dataframe}
+frequencyhold<-cbind(livefrequencyhold,diefrequencyhold)
+colnames(frequencyhold)[1]<-"lives"
+colnames(frequencyhold)[2]<-"dies"
+```
+
+```{r calculating values for analysis}
+#finding percent frequency of each AA within living and dying sets
+frequencyhold$live_freq<-frequencyhold$lives/sum(frequencyhold$lives)*100
+frequencyhold$die_freq<-frequencyhold$dies/sum(frequencyhold$dies)*100
+
+#finding ratio of living frequency to dying frequency and taking log2 of value
+frequencyhold$ratio<-log2(frequencyhold$live_freq/frequencyhold$die_freq)
+```
+
+```{r adding additional info for analysis}
+#changing name
+hahn_All_AAs_frequency<-frequencyhold
+
+#adding amino acid class to dataframe
+hahn_All_AAs_frequency$AminoAcid<-row.names(hahn_All_AAs_frequency)
+hahn_All_AAs_frequency$AminoAcid<-as.character(hahn_All_AAs_frequency$AminoAcid)
+
+hahn_All_AAs_frequency$classification<-''
+
+for (i in 1:nrow(hahn_All_AAs_frequency)){
+  if(hahn_All_AAs_frequency[i, 6]=='D'){hahn_All_AAs_frequency[i, 7]<-'acidic';}
+  if(hahn_All_AAs_frequency[i, 6]=='E'){hahn_All_AAs_frequency[i, 7]<-'acidic';}
+  if(hahn_All_AAs_frequency[i, 6]=='Y'){hahn_All_AAs_frequency[i, 7]<-'aromatic';}
+  if(hahn_All_AAs_frequency[i, 6]=='W'){hahn_All_AAs_frequency[i, 7]<-'aromatic';}
+  if(hahn_All_AAs_frequency[i, 6]=='F'){hahn_All_AAs_frequency[i, 7]<-'aromatic';}
+  if(hahn_All_AAs_frequency[i, 6]=='K'){hahn_All_AAs_frequency[i, 7]<-'basic';}
+  if(hahn_All_AAs_frequency[i, 6]=='R'){hahn_All_AAs_frequency[i, 7]<-'basic';}
+  if(hahn_All_AAs_frequency[i, 6]=='H'){hahn_All_AAs_frequency[i, 7]<-'basic';}
+  if(hahn_All_AAs_frequency[i, 6]=='A'){hahn_All_AAs_frequency[i, 7]<-'aliphatic';}
+  if(hahn_All_AAs_frequency[i, 6]=='V'){hahn_All_AAs_frequency[i, 7]<-'aliphatic';}
+  if(hahn_All_AAs_frequency[i, 6]=='L'){hahn_All_AAs_frequency[i, 7]<-'aliphatic';}
+  if(hahn_All_AAs_frequency[i, 6]=='I'){hahn_All_AAs_frequency[i, 7]<-'aliphatic';}
+  if(hahn_All_AAs_frequency[i, 6]=='M'){hahn_All_AAs_frequency[i, 7]<-'aliphatic';}
+  if(hahn_All_AAs_frequency[i, 6]=='S'){hahn_All_AAs_frequency[i, 7]<-'polar';}
+  if(hahn_All_AAs_frequency[i, 6]=='T'){hahn_All_AAs_frequency[i, 7]<-'polar';}
+  if(hahn_All_AAs_frequency[i, 6]=='N'){hahn_All_AAs_frequency[i, 7]<-'polar';}
+  if(hahn_All_AAs_frequency[i, 6]=='Q'){hahn_All_AAs_frequency[i, 7]<-'polar';}
+  if(hahn_All_AAs_frequency[i, 6]=='P'){hahn_All_AAs_frequency[i, 7]<-'special';}
+  if(hahn_All_AAs_frequency[i, 6]=='G'){hahn_All_AAs_frequency[i, 7]<-'special';}
+  if(hahn_All_AAs_frequency[i, 6]=='C'){hahn_All_AAs_frequency[i, 7]<-'special';}
+}
+```
+
+```{r ordering the dataframe and adding ranks for each AA to assist in graphing}
+hahn_All_AAs_frequency<-hahn_All_AAs_frequency[order(-hahn_All_AAs_frequency$ratio),]
+hahn_All_AAs_frequency$rank<-c(20:1)
+```
+
+```{r save dataframe as an rds file for later use}
+saveRDS(hahn_All_AAs_frequency, 'hahn_All_AAs_freq.rds')
+```
+
+```{r developing graph}
+AAcolors<-c('red', 'yellow', 'orange', 'blue', 'green', 'pink')
+
+ggplot(data=hahn_All_AAs_frequency, mapping= aes(x=ratio, y=rank)) +
+  geom_segment(aes(x = 0, y = rank, xend = ratio, yend = rank), color = "black") +
+  geom_vline(xintercept = 0)+
+  geom_point(aes(colour= classification), size=7, show.legend = TRUE) +
+  labs(colour='AA Class')+
+  scale_color_manual(values= AAcolors)+
+  geom_point(shape = 1,size = 7,colour = "black")+
+  geom_text(label=hahn_All_AAs_frequency$AminoAcid)+
+  annotate("rect", xmin = 0, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = .2) +
+  labs(x= "Log 2(Frequency Functional/ Frequency Non-Functional)")+
+  labs(y= "Amino Acid")+
+  geom_text(x=-1, y= 4, label="Depleted")+
+  geom_text(x=0.75, y= 16, label="Enriched")+
+  ggtitle("Amino Acid Live or Die in Context of GCN4")+
+  scale_y_discrete(labels=c('D', 'E', 'F', 'W', 'L', 'Y', 'I', 'M', 'N', 'V', 'G', 'C', 'A', 'S', 'T', 'Q', 'P', 'H', 'K', 'R'))+
+  scale_x_continuous(breaks=seq(min(-3), max(1.5), by= 0.25))+
+  theme_classic()
+```
+
+### For HSF1 data ###
+```{r load data and libraries}
+library(tidyverse)
+library(stringr)
+library(stringi)
+random_library<-readRDS('C:/Users/tmwagner/Documents/GitHub/summer_2020_research/datasets/random_library.rds')
+```
+
+```{r count occurrences of each amino acid in each sequence}
+All_AAs_1<-c('A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y')
+counts<-matrix(nrow= nrow(random_library), ncol = length(All_AAs_1))  
+i<-1
+j<-1
+for ( i in 1:nrow(random_library)){
+  for ( j in 1:length(All_AAs_1)){
+    counts[i, j]<-str_count(random_library$sequence[i], All_AAs_1[j])
+  }
+}
+
+counts<-data.frame(counts)
+```
+
+```{r binding the numbers of dipeptides within hold to the dipeptide names}
+colnames(counts)=All_AAs_1
+
+random_hold<-cbind(random_library, counts)
+```
+
+```{r change to character}
+random_hold$binary_stop<-as.character(random_hold$binary_stop)
+class(random_hold$binary_stop)
+```
+
+```{r save dataframe as an rds file for later use}
+saveRDS(random_hold, 'random_All_AAs_counts.rds')
+```
+
+```{r get lives and dies from random_hold}
+dies<-filter(random_hold, binary_stop=="die")%>%as.data.frame()
+lives<-filter(random_hold, binary_stop=="live")%>%as.data.frame()
+```
+
+```{r find total occurrences for each AA within the living and dying sets}
+livefrequencyhold<- matrix( nrow = 2, ncol= length(random_hold))
+livefrequencyhold<-lapply(lives[,c(4:23)], sum)%>%as.data.frame()%>%t()%>%as.data.frame()
+colnames(livefrequencyhold)[1]<-"count"
+
+diefrequencyhold<- matrix( nrow = 2, ncol= length(random_hold))
+diefrequencyhold<-lapply(dies[,c(4:23)], sum)%>%as.data.frame()%>%t()%>%as.data.frame()
+colnames(diefrequencyhold)[1]<-"count"
+```
+
+```{r combining the living and dying occurrences into one dataframe}
+frequencyhold<-cbind(livefrequencyhold,diefrequencyhold)
+colnames(frequencyhold)[1]<-"lives"
+colnames(frequencyhold)[2]<-"dies"
+```
+
+```{r calculating values for analysis}
+#finding percent frequency of each AA within living and dying sets
+frequencyhold$live_freq<-frequencyhold$lives/sum(frequencyhold$lives)*100
+frequencyhold$die_freq<-frequencyhold$dies/sum(frequencyhold$dies)*100
+
+#finding ratio of living frequency to dying frequency and taking log2 of value
+frequencyhold$ratio<-log2(frequencyhold$live_freq/frequencyhold$die_freq)
+```
+
+```{r adding additional info for analysis}
+#changing name
+random_All_AAs_frequency<-frequencyhold
+
+#adding amino acid class to dataframe
+random_All_AAs_frequency$AminoAcid<-row.names(random_All_AAs_frequency)
+random_All_AAs_frequency$AminoAcid<-as.character(random_All_AAs_frequency$AminoAcid)
+
+random_All_AAs_frequency$classification<-''
+
+for (i in 1:nrow(random_All_AAs_frequency)){
+  if(random_All_AAs_frequency[i, 6]=='D'){random_All_AAs_frequency[i, 7]<-'acidic';}
+  if(random_All_AAs_frequency[i, 6]=='E'){random_All_AAs_frequency[i, 7]<-'acidic';}
+  if(random_All_AAs_frequency[i, 6]=='Y'){random_All_AAs_frequency[i, 7]<-'aromatic';}
+  if(random_All_AAs_frequency[i, 6]=='W'){random_All_AAs_frequency[i, 7]<-'aromatic';}
+  if(random_All_AAs_frequency[i, 6]=='F'){random_All_AAs_frequency[i, 7]<-'aromatic';}
+  if(random_All_AAs_frequency[i, 6]=='K'){random_All_AAs_frequency[i, 7]<-'basic';}
+  if(random_All_AAs_frequency[i, 6]=='R'){random_All_AAs_frequency[i, 7]<-'basic';}
+  if(random_All_AAs_frequency[i, 6]=='H'){random_All_AAs_frequency[i, 7]<-'basic';}
+  if(random_All_AAs_frequency[i, 6]=='A'){random_All_AAs_frequency[i, 7]<-'aliphatic';}
+  if(random_All_AAs_frequency[i, 6]=='V'){random_All_AAs_frequency[i, 7]<-'aliphatic';}
+  if(random_All_AAs_frequency[i, 6]=='L'){random_All_AAs_frequency[i, 7]<-'aliphatic';}
+  if(random_All_AAs_frequency[i, 6]=='I'){random_All_AAs_frequency[i, 7]<-'aliphatic';}
+  if(random_All_AAs_frequency[i, 6]=='M'){random_All_AAs_frequency[i, 7]<-'aliphatic';}
+  if(random_All_AAs_frequency[i, 6]=='S'){random_All_AAs_frequency[i, 7]<-'polar';}
+  if(random_All_AAs_frequency[i, 6]=='T'){random_All_AAs_frequency[i, 7]<-'polar';}
+  if(random_All_AAs_frequency[i, 6]=='N'){random_All_AAs_frequency[i, 7]<-'polar';}
+  if(random_All_AAs_frequency[i, 6]=='Q'){random_All_AAs_frequency[i, 7]<-'polar';}
+  if(random_All_AAs_frequency[i, 6]=='P'){random_All_AAs_frequency[i, 7]<-'special';}
+  if(random_All_AAs_frequency[i, 6]=='G'){random_All_AAs_frequency[i, 7]<-'special';}
+  if(random_All_AAs_frequency[i, 6]=='C'){random_All_AAs_frequency[i, 7]<-'special';}
+}
+```
+
+```{r ordering the dataframe and adding ranks for each AA to assist in graphing}
+random_All_AAs_frequency<-random_All_AAs_frequency[order(-random_All_AAs_frequency$ratio),]
+random_All_AAs_frequency$rank<-c(20:1)
+```
+
+```{r save dataframe as an rds file for later use}
+saveRDS(random_All_AAs_frequency, 'random_All_AAs_freq.rds')
+```
+
+```{r developing graph}
+AAcolors<-c('red', 'yellow', 'orange', 'blue', 'green', 'pink')
+
+ggplot(data=random_All_AAs_frequency, mapping= aes(x=ratio, y=rank)) +
+  geom_segment(aes(x = 0, y = rank, xend = ratio, yend = rank), color = "black") +
+  geom_vline(xintercept = 0)+
+  geom_point(aes(colour= classification), size=7, show.legend = TRUE) +
+  labs(colour='AA Class')+
+  scale_color_manual(values= AAcolors)+
+  geom_point(shape = 1, size = 7,colour = "black")+
+  geom_text(label=random_All_AAs_frequency$AminoAcid)+
+  annotate("rect", xmin = 0, xmax = Inf, ymin = -Inf, ymax = Inf, alpha = .2) +
+  labs(x= "Log 2(Frequency Functional/ Frequency Non-Functional)")+
+  labs(y= "Amino Acid")+
+  geom_text(x=-0.45, y= 4, label="Depleted")+
+  geom_text(x=0.75, y= 16, label="Enriched")+
+  ggtitle("Amino Acid Live or Die in Context of HSF1")+
+  scale_y_discrete(labels=c('W', 'D', 'F', 'E', 'Y', 'M', 'N', 'L', 'G', 'T', 'S', 'Q', 'P', 'A', 'I', 'H', 'C', 'V', 'K', 'R'))+
+  scale_x_continuous(breaks=seq(min(-0.5), max(1), by= 0.25))+
+  theme_classic()
+```

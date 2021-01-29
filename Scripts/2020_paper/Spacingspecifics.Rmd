@@ -1,0 +1,1032 @@
+---
+title: "Spacingspecifics"
+output: word_document
+Authors: Theo Maris and Brad Broyles
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Loading in the data set
+hahn_tads <- readRDS("~/hahn_tads.RDS")
+# applying the necessary packages 
+library(stringi)
+library(tidyverse)
+library(caret)
+library(pROC)
+library(glmnet) 
+```
+
+```{r}
+####Finding all of the basics Specifics spacing 
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H][H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HH_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H].[H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HH_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H]..[H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HH_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H]...[H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HH_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H]....[H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HH_spacing_four<-the_matches
+
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H][K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HK_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H].[K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HK_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H]..[K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HK_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H]...[K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HK_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H]....[K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HK_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H][R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HR_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H].[R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HR_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H]..[R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HR_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H]...[R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HR_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[H]....[R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+HR_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K][H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KH_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K].[H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KH_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K]..[H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KH_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K]...[H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KH_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K]....[H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KH_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K][K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KK_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K].[K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KK_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K]..[K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KK_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K]...[K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KK_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K]....[K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+K_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K][R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KR_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K].[R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KR_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K]..[R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KR_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K]...[R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KR_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[K]....[R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+KR_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R][H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RH_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R].[H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RH_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R]..[H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RH_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R]...[H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RH_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R]....[H])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RH_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R][K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RK_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R].[K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RK_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R]..[K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RK_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R]...[K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RK_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R]....[K])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RK_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R][R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RR_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R].[R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RR_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R]..[R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RR_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R]...[R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RR_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[R]....[R])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+RR_spacing_four<-the_matches
+```
+
+```{r}
+####Finding all of the Acidics Specifics spacing 
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[D][D])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+DD_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[D].[D])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+DD_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[D]..[D])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+DD_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[D]...[D])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+DD_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[D]....[D])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+DD_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[D][E])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+DE_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[D].[E])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+DE_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[D]..[E])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+DE_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[D]...[E])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+DE_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[D]....[E])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+DE_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[E][D])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+ED_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[E].[D])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+ED_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[E]..[D])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+ED_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[E]...[D])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+ED_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[E]....[D])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+ED_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[E][E])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+EE_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[E].[E])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+EE_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[E]..[E])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+EE_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[E]...[E])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+EE_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[E]....[E])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+EE_spacing_four<-the_matches
+```
+
+```{r}
+####Finding all of the Aromatics Specifics spacing 
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W][W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WW_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W].[W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WW_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W]..[W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WW_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W]...[W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WW_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W]....[W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WW_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W][Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WY_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W].[Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WY_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W]..[Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WY_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W]...[Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WY_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W]....[Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WY_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W][F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WF_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W].[F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WF_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W]..[F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WF_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W]...[F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WF_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[W]....[F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+WF_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y][Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YY_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y].[Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YY_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y]..[Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YY_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y]...[Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YY_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y]....[Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YY_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y][F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YF_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y].[F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YF_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y]..[F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YF_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y]...[F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YF_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y]....[F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YF_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y][W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YW_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y].[W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YW_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y]..[W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YW_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y]...[W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YW_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[Y]....[W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+YW_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F][F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FF_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F].[F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FF_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F]..[F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FF_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F]...[F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FF_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F]....[F])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FF_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F][Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FY_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F].[Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FY_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F]..[Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FY_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F]...[Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FY_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F]....[Y])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FY_spacing_four<-the_matches
+
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F][W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FW_spacing_zero<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F].[W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FW_spacing_one<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F]..[W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FW_spacing_two<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F]...[W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FW_spacing_three<-the_matches
+the_matches<-c()
+for (i in 1:length(hahn_tads$sequence)) {
+matches<-stringi::stri_match_all_regex(hahn_tads$sequence[i], '(?=[F]....[W])')[[1]]
+the_matches[i]<- which(matches[,1]=='') %>% length()
+}
+FW_spacing_four<-the_matches
+```
+
+```{r}
+# Loading in all of the necessary spacing data values into one table for Machine Learning 
+Spacingspecific<-data.frame(row.names = 1 :length(hahn_tads$sequence))
+Spacingspecific$sequence<-hahn_tads$sequence
+Spacingspecific$HH_zero<-HH_spacing_zero
+Spacingspecific$HH_one<-HH_spacing_one
+Spacingspecific$HH_two<-HH_spacing_two
+Spacingspecific$HH_three<-HH_spacing_three
+Spacingspecific$HH_four<-HH_spacing_four
+Spacingspecific$HK_zero<-HK_spacing_zero
+Spacingspecific$HK_one<-HK_spacing_one
+Spacingspecific$HK_two<-HK_spacing_two
+Spacingspecific$HK_three<-HK_spacing_three
+Spacingspecific$HK_four<-HK_spacing_four
+Spacingspecific$HR_zero<-HR_spacing_zero
+Spacingspecific$HR_one<-HR_spacing_one
+Spacingspecific$HR_two<-HR_spacing_two
+Spacingspecific$HR_three<-HR_spacing_three
+Spacingspecific$HR_four<-HR_spacing_four
+Spacingspecific$KH_zero<-KH_spacing_zero
+Spacingspecific$KH_one<-KH_spacing_one
+Spacingspecific$KH_two<-KH_spacing_two
+Spacingspecific$KH_three<-KH_spacing_three
+Spacingspecific$KH_four<-KH_spacing_four
+Spacingspecific$KK_zero<-KK_spacing_zero
+Spacingspecific$KK_one<-KK_spacing_one
+Spacingspecific$KK_two<-KK_spacing_two
+Spacingspecific$KK_three<-KK_spacing_three
+Spacingspecific$KK_four<-K_spacing_four
+Spacingspecific$KR_zero<-KR_spacing_zero
+Spacingspecific$KR_one<-KR_spacing_one
+Spacingspecific$KR_two<-KR_spacing_two
+Spacingspecific$KR_three<-KR_spacing_three
+Spacingspecific$KR_four<-KR_spacing_four
+Spacingspecific$RH_zero<-RH_spacing_zero
+Spacingspecific$RH_one<-RH_spacing_one
+Spacingspecific$RH_two<-RH_spacing_two
+Spacingspecific$RH_three<-RH_spacing_three
+Spacingspecific$RH_four<-RH_spacing_four
+Spacingspecific$RK_zero<-RK_spacing_zero
+Spacingspecific$RK_one<-RK_spacing_one
+Spacingspecific$RK_two<-RK_spacing_two
+Spacingspecific$RK_three<-RK_spacing_three
+Spacingspecific$RK_four<-RK_spacing_four
+Spacingspecific$RR_zero<-RR_spacing_zero
+Spacingspecific$RR_one<-RR_spacing_one
+Spacingspecific$RR_two<-RR_spacing_two
+Spacingspecific$RR_three<-RR_spacing_three
+Spacingspecific$RR_four<-RR_spacing_four
+
+Spacingspecific$DD_zero<-DD_spacing_zero
+Spacingspecific$DD_one<-DD_spacing_one
+Spacingspecific$DD_two<-DD_spacing_two
+Spacingspecific$DD_three<-DD_spacing_three
+Spacingspecific$DD_four<-DD_spacing_four
+Spacingspecific$DE_zero<-DE_spacing_zero
+Spacingspecific$DE_one<-DE_spacing_one
+Spacingspecific$DE_two<-DE_spacing_two
+Spacingspecific$DE_three<-DE_spacing_three
+Spacingspecific$DE_four<-DE_spacing_four
+Spacingspecific$ED_zero<-ED_spacing_zero
+Spacingspecific$ED_one<-ED_spacing_one
+Spacingspecific$ED_two<-ED_spacing_two
+Spacingspecific$ED_three<-ED_spacing_three
+Spacingspecific$ED_four<-ED_spacing_four
+Spacingspecific$EE_zero<-EE_spacing_zero
+Spacingspecific$EE_one<-EE_spacing_one
+Spacingspecific$EE_two<-EE_spacing_two
+Spacingspecific$EE_three<-EE_spacing_three
+Spacingspecific$EE_four<-EE_spacing_four
+
+Spacingspecific$WW_zero<-WW_spacing_zero
+Spacingspecific$WW_one<-WW_spacing_one
+Spacingspecific$WW_two<-WW_spacing_two
+Spacingspecific$WW_three<-WW_spacing_three
+Spacingspecific$WW_four<-WW_spacing_four
+Spacingspecific$WF_zero<-WF_spacing_zero
+Spacingspecific$WF_one<-WF_spacing_one
+Spacingspecific$WF_two<-WF_spacing_two
+Spacingspecific$WF_three<-WF_spacing_three
+Spacingspecific$WF_four<-WF_spacing_four
+Spacingspecific$WY_zero<-WY_spacing_zero
+Spacingspecific$WY_one<-WY_spacing_one
+Spacingspecific$WY_two<-WY_spacing_two
+Spacingspecific$WY_three<-WY_spacing_three
+Spacingspecific$WY_four<-WY_spacing_four
+Spacingspecific$YY_zero<-YY_spacing_zero
+Spacingspecific$YY_one<-YY_spacing_one
+Spacingspecific$YY_two<-YY_spacing_two
+Spacingspecific$YY_three<-YY_spacing_three
+Spacingspecific$YY_four<-YY_spacing_four
+Spacingspecific$YF_zero<-YF_spacing_zero
+Spacingspecific$YF_one<-YF_spacing_one
+Spacingspecific$YF_two<-YF_spacing_two
+Spacingspecific$YF_three<-YF_spacing_three
+Spacingspecific$YF_four<-YF_spacing_four
+Spacingspecific$YW_zero<-YW_spacing_zero
+Spacingspecific$YW_one<-YW_spacing_one
+Spacingspecific$YW_two<-YW_spacing_two
+Spacingspecific$YW_three<-YW_spacing_three
+Spacingspecific$YW_four<-YW_spacing_four
+Spacingspecific$FF_zero<-FF_spacing_zero
+Spacingspecific$FF_one<-FF_spacing_one
+Spacingspecific$FF_two<-FF_spacing_two
+Spacingspecific$FF_three<-FF_spacing_three
+Spacingspecific$FF_four<-FF_spacing_four
+Spacingspecific$FW_zero<-FW_spacing_zero
+Spacingspecific$FW_one<-FW_spacing_one
+Spacingspecific$FW_two<-FW_spacing_two
+Spacingspecific$FW_three<-FW_spacing_three
+Spacingspecific$FW_four<-FW_spacing_four
+Spacingspecific$FY_zero<-FY_spacing_zero
+Spacingspecific$FY_one<-FY_spacing_one
+Spacingspecific$FY_two<-FY_spacing_two
+Spacingspecific$FY_three<-FY_spacing_three
+Spacingspecific$FY_four<-FY_spacing_four
+```
+
+```{r}
+#Writing out the data into a csv file
+write.csv(Spacingspecific,"Spacingspecific.csv")
+```
+
+```{r}
+# Applying Machine Learning to the new data table
+#can either read in the csv file or run Above code
+Spacingspecific <- read.csv("~/Spacingspecific.csv", row.names=1)
+```
+
+```{r}
+#Predicting on AD set
+#Training on dipeptide data
+#you can add whatever library you want
+live<-Spacingspecific[1:37924,]
+die<-Spacingspecific[37925:1048575,]
+#Split into test and train----
+#remove sequence column, add AD_set back to my datasets
+live <- live %>%
+  as_tibble() %>%
+  select(-sequence) %>%
+  mutate(AD_set = 'AD_positive')
+
+die <- die %>%
+  as_tibble() %>%
+  select(-sequence) %>%
+  mutate(AD_set = 'AD_negative')
+
+#get train (80% of data) and test (20%) sets
+#set seed for reproducible results
+set.seed(123)
+
+rows <- sample(1:nrow(live), round(nrow(live) %>% as.numeric() * 0.8))
+live_train <- live[rows,]
+live_test <- live[-rows,]
+
+#changing to be the same amount of sequences from die and live pool...
+#took too long to train with 80% of data from dying sequence
+rows <- sample(1:nrow(die), round(nrow(live) %>% as.numeric() * 0.8))
+die_train <- die[rows,]
+die_test <- die[-rows,]
+
+train_set <- rbind(live_train, die_train)
+test_set <- rbind(live_test, die_test)
+
+#remove variables to clean up environment at this point
+rm(list = c('live_train', 'live_test',
+            'die_train', 'die_test', 'rows'))
+
+#train a model
+train_set$AD_set <- factor(train_set$AD_set)
+```
+
+```{r}
+
+###   ridge----
+#grid of lamdas to search over
+lambda <- 10^seq(-6, -3, length = 50)
+
+# Build the model
+ridge <- train(
+  AD_set ~., data = train_set, method = "glmnet",
+  trControl = trainControl("cv", number = 5),
+  tuneGrid = expand.grid(alpha = 0, lambda = lambda)
+)
+```
+
+```{r}
+# Plot Variable importance----
+df_varImp <- varImp(ridge)
+plot_var_imp <- tibble(features = row.names(df_varImp$importance),
+                       importance = df_varImp$importance %>% unlist())
+
+#order features by importance
+plot_var_imp$features <- factor(plot_var_imp$features,
+                                levels = plot_var_imp$features[order(plot_var_imp$importance)])
+
+#looking at features
+plot_var_imp <- plot_var_imp[order(plot_var_imp$importance) %>% rev(),]
+
+
+ROCS<-ggplot(plot_var_imp, aes(features, importance))+
+  geom_col()+
+  ggtitle('Ridge Variable Importance')+
+  coord_flip()
+# Used to look at the coefficients to see how the importance was ranked
+Complex_spacing_coef<-coef(ridge$finalModel, ridge$bestTune$lambda)
+```
+
+```{r}
+
+# Get ROC curve AUC results... graph if you dare. it takes a while ----
+predicted_prob<-predict.train(ridge, test_set,type = "prob")
+myroc<-roc(test_set$AD_set, predicted_prob$AD_negative)
+
+myroc$auc
+
+#graph a roc curve
+mystats<-data.frame(myroc$sensitivities,myroc$specificities)
+colnames(mystats)<-c('sensitivities','specificities')
+var_Imp_Acidics_Aromatics_AUC_plot<-mystats %>%ggplot(
+    mapping = aes(x = 1 - specificities, y = sensitivities)
+  )+
+  geom_rect(aes(xmin=0, xmax=0.25, ymin=0.75, ymax=1)) +
+  geom_abline(aes(intercept = 0, slope = 1)) +
+  geom_point(size = 0.1)+
+  geom_line(size=1)+
+  ggtitle('Ridge')+
+  annotate('rect',xmin = 0.625,xmax = 0.875,ymin = 0.1875,
+           ymax = 0.3125,fill = 'gray')+
+  annotate('text',x=0.75,y=0.25,label=paste('AUC:',round(myroc$auc[1],4)),color = 'red')
+
+#clean up environment
+rm(list = c('predicted_prob', 'myroc'))
+rm('mystats')
+```
+
+```{r}
+#Adding extra columns for future analyses in Tableau
+head(plot_var_imp)
+first_AA<-strtrim(plot_var_imp$features,1)
+composition<-c()
+for (i in 1:110) {
+if (first_AA[[i]]=="D"){
+  composition[i]<-"Acidic"
+  }
+  
+  if (first_AA[[i]]=="E"){
+  composition[i]<-"Acidic"
+  }
+  
+  if (first_AA[[i]]=="W"){
+  composition[i]<-"Aromatic"
+  }
+  
+   if (first_AA[[i]]=="F"){
+  composition[i]<-"Aromatic"
+  }
+  
+   if (first_AA[[i]]=="Y"){
+  composition[i]<-"Aromatic"
+   }
+  
+  if (first_AA[[i]]=="H"){
+  composition[i]<-"Basic"
+  }
+  
+  if (first_AA[[i]]=="R"){
+  composition[i]<-"Basic"
+  }
+  
+  if (first_AA[[i]]=="K"){
+  composition[i]<-"Basic"
+   }
+}
+```
+
+```{r}
+# Getting the spacing information
+hold<-str_extract(plot_var_imp$features,"four")
+hold1<-str_extract(plot_var_imp$features,"three")
+hold2<-str_extract(plot_var_imp$features,"two")
+hold3<-str_extract(plot_var_imp$features,"one")
+hold4<-str_extract(plot_var_imp$features,"zero")
+spacing<-c()
+for (i in 1:110) {
+if (is.na(hold[[i]])==F){
+  spacing[i]<-"four"
+}
+  if (is.na(hold1[[i]])==F){
+  spacing[i]<-"three"
+  }
+  if (is.na(hold2[[i]])==F){
+  spacing[i]<-"two"
+  }
+  if (is.na(hold3[[i]])==F){
+  spacing[i]<-"one"
+  }
+  if (is.na(hold4[[i]])==F){
+  spacing[i]<-"zero"
+}
+}
+
+plot_var_imp$composition<-composition
+plot_var_imp$position_group<-spacing
+```
+
+
+```{r}
+#Final Products 
+#csv will be used in tableau graph
+write.csv(plot_var_imp,"same_complex_spacing.csv")
+#Basic Importance plot (visualization enhanced in Tableau)
+ROCS
+#ROC curve
+var_Imp_Acidics_Aromatics_AUC_plot
+
+```
+
+

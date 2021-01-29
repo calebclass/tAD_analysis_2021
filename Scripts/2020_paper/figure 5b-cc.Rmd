@@ -1,0 +1,218 @@
+---
+title: "spread vs cluster"
+author: "DC"
+date: "6/22/2020"
+output: html_document
+---
+
+#subset the hahn set into 5,5,<1 
+#using regexes to find cluster + spread
+
+```{r}
+library(tidyverse)
+library(stringr)
+```
+```{r}
+#this is the data for the graph 
+
+hahn_tads <- readRDS("../../Datasets/Datasets/hahn_tads.rds")
+
+hahn_tads$Basicstotal<- str_count(hahn_tads$sequence, "[HRK]")
+hahn_tads$Acidstotal<- str_count(hahn_tads$sequence, "[ED]")
+hahn_tads$Aromaticstotal<- str_count(hahn_tads$sequence, "[WYF]")
+clustertest_2<-hahn_tads %>% filter(Basicstotal<=1& Acidstotal==5 & Aromaticstotal==5)
+```
+
+
+```{r}
+aro_1<-str_count(clustertest_2$sequence,"[WYF][WYF][WYF][WYF]")
+aro_2<-str_count(clustertest_2$sequence,"[WYF][WYF][WYF][^WYF][WYF]")
+aro_3<-str_count(clustertest_2$sequence,"[WYF][WYF][^WYF][WYF][WYF]")
+aro_4<-str_count(clustertest_2$sequence,"[WYF][^WYF][WYF][WYF][WYF]")
+
+
+arocount1<-which(aro_1>0)
+hold1<-clustertest_2[arocount1,]
+
+arocount2<-which(aro_2>0)
+hold2<-clustertest_2[arocount2,]
+
+arocount3<-which(aro_3>0)
+hold3<-clustertest_2[arocount3,]
+
+arocount4<-which(aro_4>0)
+hold4<-clustertest_2[arocount4,]
+
+
+arototal<-c(arocount1,arocount2,arocount3,arocount4)
+#9/31 29% 
+
+
+#table(clustertest_2[arototal,]$AD_set) w/ duplicates
+
+Kadabra<-unique(arototal)
+table(clustertest_2[Kadabra,]$AD_set)
+#9/(31 + 9) = 22.5%
+
+Starmie<-clustertest_2[Kadabra,] %>% filter(AD_set=="AD_positive")
+sum(Starmie$enrichmen_score)/length(Starmie$enrichmen_score)
+
+#new aro cluster 5.874444
+```
+
+
+
+
+```{r}
+acid_1<-str_count(clustertest_2$sequence, "[DE][DE][DE][DE]")
+acid_2<-str_count(clustertest_2$sequence,"[DE][DE][DE][^DE][DE]")
+acid_3<-str_count(clustertest_2$sequence,"[DE][DE][^DE][DE][DE]")
+acid_4<-str_count(clustertest_2$sequence,"[DE][^DE][DE][DE][DE]")
+
+
+acidcount1<-which(acid_1>0)
+hold1<-clustertest_2[acidcount1,]
+
+
+acidcount2<-which(acid_2>0)
+hold2<-clustertest_2[acidcount2,]
+
+acidcount3<-which(acid_3>0)
+hold3<-clustertest_2[acidcount3,]
+
+
+acidcount4<-which(acid_4>0)
+hold4<-clustertest_2[acidcount4,]
+
+acidtotal<-c(acidcount1,acidcount2,acidcount3,acidcount4)
+
+Abra<-unique(acidtotal)
+table(clustertest_2[Abra,]$AD_set)
+
+#enrichmen_score
+Staryu<-clustertest_2[Abra,] %>% filter(AD_set=="AD_positive")
+sum(Staryu$enrichmen_score)/length(Staryu$enrichmen_score)
+
+
+#old score sum(clustertest_2[Abra,]$enrichmen_score)/length(clustertest_2[Abra,]$enrichmen_score)
+ 
+#3/38 7.9%
+#new score 3.85667
+
+```
+
+```{r}
+table(clustertest_2$AD_set)
+Magikarp<-clustertest_2 %>% filter(AD_set=="AD_positive")
+sum(Magikarp$enrichmen_score)/length(Magikarp$enrichmen_score)
+
+
+sum(clustertest_2$enrichmen_score)/length(clustertest_2$enrichmen_score)
+
+
+#base case 737/2122 34.7%
+#new score 4.975
+```
+
+
+
+
+
+```{r}
+arospread_1<-str_count(clustertest_2$sequence,"[WYF][^WYF][^WYF][^WYF]")                      
+aro_spreadcount1<-which(arospread_1 ==5)
+hold1<-clustertest_2[aro_spreadcount1,]
+
+arospread_2<-str_count(clustertest_2$sequence,"[^WYF][^WYF][^WYF][WYF]")                    
+aro_spreadcount2<-which(arospread_2 ==5)
+hold2<-clustertest_2[aro_spreadcount2,]
+
+
+Hocus<-unique(c(aro_spreadcount1,aro_spreadcount2))
+table(clustertest_2[Hocus,]$AD_set)
+
+#total 35/84 41.6
+
+#enrichmen_score
+Horsea<-clustertest_2[Hocus,] %>% filter(AD_set=="AD_positive")
+sum(Horsea$enrichmen_score)/length(Horsea$enrichmen_score)
+#old sum(clustertest_2[Hocus,]$enrichmen_score)/length(clustertest_2[Hocus,]$enrichmen_score)
+#new score 4.983
+```
+
+
+
+```{r}
+#use this one 
+acidspread_1<-str_count(clustertest_2$sequence,"[DE][^DE][^DE][^DE]")                      
+acid_spreadcount1<-which(acidspread_1 ==5)
+hold1<-clustertest_2[acid_spreadcount1,]
+
+acidspread_2<-str_count(clustertest_2$sequence,"[^DE][^DE][^DE][DE]")                      
+acid_spreadcount2<-which(acidspread_2 ==5)
+hold2<-clustertest_2[acid_spreadcount2,]
+
+Pocus<-unique(c(acid_spreadcount1,acid_spreadcount2))
+table(clustertest_2[Pocus,]$AD_set)
+#40/95 43.4%
+#enrichmen_score
+Seadra<-clustertest_2[Pocus,] %>% filter(AD_set=="AD_positive")
+sum(Seadra$enrichmen_score)/length(Seadra$enrichmen_score)
+#old sum(clustertest_2[Pocus,]$enrichmen_score)/length(clustertest_2[Pocus,]$enrichmen_score)
+# new score 4.983
+
+
+```
+```{r}
+
+```
+
+```{r}
+#average_enirchment_scores<-c(-2.31, -1.437,-4.433,-1.959,-3.123)
+#ata<-data.frame(case=c("Base Case", "Acid Spread", "Acid Clustered", "Aro Spread", "Aro Clustered"), live_percentage=c(33.5, 42, 14,37, 24))
+#sequence_count<- c(3103,152,57,122,54)
+#data$enrichmen_scorescores=average_enirchment_scores
+#as.factor(data$enrichmen_scorescores)
+#ggplot(data, aes(x=case , y=live_percentage,fill=enrichmen_scorescores))+
+#geom_bar(stat="identity")+scale_fill_gradient2(low="blue",high="red",mid = "grey",midpoint = -2.31)+labs(x=" ", y="live percentage",title = "Analysis of clustering vs spread of acidic and aromatic amino acids")+ geom_text(aes(label=sequence_count), vjust=-0.3, size=5)+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +theme_classic() 
+
+#this was over the average enrichmen_score of ALL seqeunces the revised enrichmen_score of just AD + is below note comparison 
+
+
+#Numbers at the top of the bars represent total number of sequences in that given pool & numbers in the middle of the bars represent the average enrichmen_score scores for that pool
+```
+                                      
+```{r}
+#only positive enrichmen_score 
+average_enirchment_scores<-c(4.975,4.83,3.85667,4.083,5.810769)
+data<-data.frame(case=c("Base Case", "Acid Spread", "Acid Clustered", "Aro Spread", "Aro Clustered"), live_percentage=c(34.7, 43.4,7,41.6, 22.5))
+sequence_count<- c(2122,92,38,84,40)
+data$enrichment_scores=average_enirchment_scores
+as.factor(data$enrichment_scores)
+ggplot(data, aes(x=case , y=live_percentage,fill=enrichment_scores))+
+geom_bar(stat="identity")+scale_fill_gradient2(low="blue",high="red",mid = "grey",midpoint = 4.975)+labs(x=" ", y="live percentage",title = "Analysis of clustering vs spread of acidic and aromatic amino acids")+ geom_text(aes(label=sequence_count), vjust=-0.3, size=5)+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +theme_classic() 
+
+
+```
+
+```{r, fig.height = 3, fig.width = 4}
+#No enrichment score
+average_enirchment_scores<-c(4.975,4.83,3.85667,4.083,5.810769)
+data<-data.frame(case=c("Base\nCase", "Acid\nSpread", "Acid\nClustered", 
+                        "Aromatic\nSpread", "Aromatic\nClustered"), 
+                 live_percentage=c(34.7, 42.1, 7.9, 41.7, 22.5),
+                 gp = c("Base", "Acid", "Acid", "Aromatic", "Aromatic"), 
+                 sequence_count = c(2122,95,38,84,40),
+                 func_count = c(737, 40, 3, 35, 9))
+
+data$enrichment_scores=average_enirchment_scores
+as.factor(data$enrichment_scores)
+ggplot(data, aes(x=case , y=live_percentage, fill = gp)) +
+  geom_bar(stat="identity", col = "black") + labs(x=" ", y="% Functional") +
+  geom_text(aes(label=paste0(func_count, " / ", sequence_count)), vjust=-0.3, size=4) +  
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  scale_fill_manual(values = c("red", "orange", "grey70")) + 
+  theme_bw() + ylim(0, 50) + theme(legend.position = "none")
+
+
+```
