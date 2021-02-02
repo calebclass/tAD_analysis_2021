@@ -93,7 +93,7 @@ ggplot(motif_list, aes(xaxis, hsf1_live_percent,fill = color))+
   xlab('Motifs')+
   ylab('Percent Functional')+
   ggtitle('HSF1')
-ggsave("Figures/new_Fig1b_HSF1.tiff",
+ggsave("Figure 1/Figures/Fig1b_HSF1.tiff",
        height = 2.8, width = 2.4)
 
 ggplot(motif_list, aes(xaxis, gcn4_live_percent,fill = color))+
@@ -103,7 +103,7 @@ ggplot(motif_list, aes(xaxis, gcn4_live_percent,fill = color))+
   xlab('Motifs')+
   ylab('Percent Functional')+
   ggtitle('Gcn4')
-ggsave("Figures/new_Fig1b_Gcn4.tiff",
+ggsave("Figure 1/Figures/Fig1a_Gcn4.tiff",
        height = 2.8, width = 2.5)
 
 #make it similar to excel graphs
@@ -193,7 +193,7 @@ ggplot(plot_var_imp, aes(xaxis, coefs,fill = colors))+
   xlab('Motifs')+
   ylab('ML Feature Coefficient')+
   ggtitle('Gcn4', subtitle = 'ROC AUC: 0.732')
-ggsave("Figures/new_Fig1c_Gcn4-Regression.tiff",
+ggsave("Figure 1/Figures/Fig1c_Gcn4-Regression.tiff",
        height = 3.0, width = 2.6)
 
 
