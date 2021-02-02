@@ -33,7 +33,7 @@ ggplot(agg_library, aes(Acidic_Count, Aromatic_Count, fill = enrichmen_score))+
   theme(legend.title = element_text(size = 5), 
         legend.text = element_text(size = 5),
         panel.background = element_rect(fill='grey70'))
-ggsave("Figures/Fig4_GCN_AcidicAromaticHM.tiff", 
+ggsave("Figure 4/Figures/Fig4_GCN_AcidicAromaticHM.tiff", 
        height = 2.5, width = 3)
 
 
@@ -65,7 +65,7 @@ ggplot(df_eq, aes(x = cts, y = perc_func)) +
   theme_bw() +
 #  scale_x_continuous(breaks = 0:9)  +
   theme(panel.grid.minor.x = element_blank())
-ggsave("Figures/Fig4a_GCN_bargraph.tiff",
+ggsave("Figure 4/Figures/Fig4a_GCN_bargraph.tiff",
        height = 2, width = 3)
 
 
@@ -174,7 +174,7 @@ ggplot(agg_library, aes(Acidic_Count, Aromatic_Count, fill = estimate))+
         panel.background = element_rect(fill='grey70')) +
   scale_x_continuous(breaks = seq(0, 8, by=2)) +
   scale_y_continuous(breaks = seq(0, 8, by=2))
-ggsave("Figures/Fig4_HSF_AcidicAromaticHM.tiff", 
+ggsave("Figure 4/Figures/Fig4_HSF_AcidicAromaticHM.tiff", 
        height = 2.5, width = 3)
 
 
@@ -206,7 +206,7 @@ ggplot(df_eq[!(df_eq$cts %in% c("4", "5")),], aes(x = cts, y = perc_func)) +
   theme_bw() +
 #  scale_x_continuous(breaks = 0:9)  +
   theme(panel.grid.minor.x = element_blank())
-ggsave("Figures/Fig4b_HSF_bargraph.tiff",
+ggsave("Figure 4/Figures/Fig4b_HSF_bargraph.tiff",
        height = 2, width = 3)
 
 
