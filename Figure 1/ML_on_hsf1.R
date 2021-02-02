@@ -76,7 +76,7 @@ ggplot(coef, aes(xaxis, coef,fill = color))+
   xlab('Motifs')+
   ylab('ML Feature Coefficient')+
   ggtitle('HSF1', subtitle = 'ROC AUC: 0.532')
-ggsave("Figures/new_Fig1d_HSF-Regression.tiff",
+ggsave("Figure 1/Figures/Fig1d_HSF-Regression.tiff",
        height = 3.0, width = 2.55)
 
 
@@ -151,6 +151,7 @@ ggplot(coef, aes(xaxis, coef,fill = color))+
   xlab('Motifs')+
   ylab('Feature Coefficient')+
   ggtitle('hsf1', subtitle = 'Ridge ROC AUC: 0.515')
+
 
 #write.csv(coef, 'figure1_ML_hsf1_coeff_without_basic.csv')
 

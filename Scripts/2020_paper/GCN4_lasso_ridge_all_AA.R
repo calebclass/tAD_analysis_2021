@@ -7,27 +7,6 @@ GCN4_all_aa<-hahn_tads[,c('sequence', 'AD_set')]
 head(GCN4_all_aa)
 
 
-GCN4_all_aa$R_count<-0
-GCN4_all_aa$H_count<-0
-GCN4_all_aa$K_count<-0
-GCN4_all_aa$D_count<-0  
-GCN4_all_aa$E_count<-0
-GCN4_all_aa$S_count<-0  
-GCN4_all_aa$T_count<-0
-GCN4_all_aa$N_count<-0  
-GCN4_all_aa$Q_count<-0
-GCN4_all_aa$C_count<-0  
-GCN4_all_aa$G_count<-0  
-GCN4_all_aa$P_count<-0  
-GCN4_all_aa$A_count<-0
-GCN4_all_aa$V_count<-0
-GCN4_all_aa$I_count<-0
-GCN4_all_aa$L_count<-0
-GCN4_all_aa$M_count<-0
-GCN4_all_aa$F_count<-0
-GCN4_all_aa$Y_count<-0
-GCN4_all_aa$W_count<-0
-
 
 GCN4_all_aa$R_count<-str_count(GCN4_all_aa$sequence,"R")
 GCN4_all_aa$H_count<-str_count(GCN4_all_aa$sequence,"H")
@@ -191,7 +170,7 @@ ggplot(plot_var_imp, aes(features, coefficient, fill = AAclass))+
 #  ggtitle('Ridge Variable Importance GCN4') +
   theme_bw() +
   theme(legend.title = element_blank())
-ggsave("Figures/Fig2_Ridge_GCN4.tiff", height = 3, width = 3,
+ggsave("Figure 2/Figures/Fig2_Ridge_GCN4.tiff", height = 3, width = 3,
        units = "in")
 
 
@@ -278,7 +257,7 @@ ggplot(plot_var_imp, aes(features, coefficient, fill = AAclass))+
 #  ggtitle('Lasso Variable Importance GCN4') +
   theme_bw() +
   theme(legend.title = element_blank())
-ggsave("Figures/Fig2_Lasso_GCN4.tiff", height = 3, width = 3,
+ggsave("Figure 2/Figures/Fig2_Lasso_GCN4.tiff", height = 3, width = 3,
        units = "in")
 
 plot_var_imp_lasso <- plot_var_imp
