@@ -263,7 +263,7 @@ ggplot(var_imp[var_imp$spacing == "single",], aes(features, coefficient, fill = 
   theme_bw() +
   ylim(xmin, xmax) +
   theme(legend.title = element_blank())
-ggsave("Figures/Fig5c_Lasso_solos.tiff", height = 3, width = 3,
+ggsave("Figure 5/Figures/Fig5c_Lasso_solos.tiff", height = 3, width = 3,
        units = "in")
 
 var_imp2 <- var_imp[var_imp$spacing != "single",]
@@ -285,7 +285,7 @@ ggplot(var_imp2 , aes(aaclass, coefficient, group = spacing,
   theme_bw() +
   ylim(xmin, xmax) +
   theme(legend.position = "none")
-ggsave("Figures/Fig5c_Lasso_motifs.tiff", height = 3, width = 2.8,
+ggsave("Figure 5/Figures/Fig5c_Lasso_motifs.tiff", height = 3, width = 2.8,
        units = "in")
 
 # Get ROC curve AUC results... graph if you dare. it takes a while ----
@@ -327,7 +327,7 @@ ggplot(plot_var_imp, aes(features, coefficient, fill = AAclass))+
 #  ggtitle('Lasso Variable Importance GCN4') +
   theme_bw() +
   theme(legend.title = element_blank())
-ggsave("Figures/Fig2_Lasso_GCN4.tiff", height = 3, width = 3,
+ggsave("Figure 5/Figures/Fig2_Lasso_GCN4.tiff", height = 3, width = 3,
        units = "in")
 
 plot_var_imp_lasso <- plot_var_imp

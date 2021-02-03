@@ -1,0 +1,414 @@
+---
+title: "Machine Learning Comparison"
+output: html_notebook
+---
+
+
+```{r}
+
+dat <- read.csv("../data/xiao_analysis/Cmp_Attention_Ridge.csv",
+                stringsAsFactors = FALSE)
+
+pn.stats <- table(dat$AD_label)
+
+```
+
+This analysis includes `r nrow(dat)` sequences from the test set (consistent for
+both ML methods), of which `r sum(dat$AD_label)` were AD_positive.
+
+# Within-method analysis
+
+```{r, fig.height = 5, fig.width = 5}
+
+library(ROCR)
+
+pred.ridge <- prediction(predictions = dat$Ridge_positive_prob, 
+                          labels = dat$AD_label)
+perf.ridge <- performance(pred.ridge, measure = "tpr", x.measure = "fpr")
+plot(perf.ridge, col=rainbow(10))
+
+```
+We'll select the cutoff for this analysis based on the cutoff that maximizes
+(TPR + TNR).
+
+```{r}
+pred.ridge.table <- data.frame(cutoff = pred.ridge@cutoffs[[1]],
+                               tpr = pred.ridge@tp[[1]] / pn.stats[2],
+                               tnr = pred.ridge@tn[[1]] / pn.stats[1])
+pred.ridge.table$ind <- pred.ridge.table$tpr + pred.ridge.table$tnr - 1
+
+best.cutoff.ind <- which.max(pred.ridge.table$ind)
+best.cutoff.ridge <- round(pred.ridge.table$cutoff[best.cutoff.ind], 3)
+pred.ridge.table[(best.cutoff.ind-10):(best.cutoff.ind+10),]
+
+```
+
+The best cutoff is `r best.cutoff.ridge`.
+
+```{r, fig.height = 5, fig.width = 5, eval = FALSE}
+
+perf.ridge <- performance(pred.ridge, "cal")
+plot(perf.ridge, col=rainbow(10))
+
+```
+
+
+```{r, fig.height = 5, fig.width = 5}
+
+pred.nn <- prediction(predictions = dat$Attention_positive_prob, 
+                          labels = dat$AD_label)
+perf.nn <- performance(pred.nn, measure = "tpr", x.measure = "fpr")
+plot(perf.nn, col=rainbow(10))
+
+```
+
+```{r}
+pred.nn.table <- data.frame(cutoff = pred.nn@cutoffs[[1]],
+                               tpr = pred.nn@tp[[1]] / pn.stats[2],
+                               tnr = pred.nn@tn[[1]] / pn.stats[1])
+pred.nn.table$ind <- pred.nn.table$tpr + pred.nn.table$tnr - 1
+
+best.cutoff.ind <- which.max(pred.nn.table$ind)
+best.cutoff.nn <- round(pred.nn.table$cutoff[best.cutoff.ind], 2)
+pred.nn.table[(best.cutoff.ind-10):(best.cutoff.ind+10),]
+
+```
+
+The best cutoff is `r best.cutoff.nn`.
+
+
+# Method comparison
+
+Overall, the methods are relatively concordant, with a Spearman correlation of
+`r cor(dat$Ridge_positive_prob, dat$Attention_positive_prob, method = "spearman")`
+
+For the positive sequences, we see the following prediction accuracy from the 
+two methods, by using the optimal cutoffs defined above.
+
+```{r}
+
+dat.pos <- dat[dat$AD_label == 1,]
+dat.pos$combined_prob <- dat.pos$Ridge_positive_prob + dat.pos$Attention_positive_prob
+dat.pos$diff_prob <- dat.pos$Ridge_positive_prob - dat.pos$Attention_positive_prob
+
+table(dat.pos$Ridge_positive_prob > best.cutoff.ridge,
+      dat.pos$Attention_positive_prob > best.cutoff.nn)
+
+```
+Some False-Negatives identified by Ridge regression were borderline cases,
+while others had very low prediction values.
+
+```{r}
+hist(dat.pos$Ridge_positive_prob[dat.pos$Ridge_positive_prob < best.cutoff.ridge])
+```
+This is similar for the neural network approach, although many of them had very
+low probabilities
+
+```{r}
+hist(dat.pos$Attention_positive_prob[dat.pos$Attention_positive_prob < best.cutoff.nn])
+```
+
+
+For the negative sequences, we see the following prediction accuracy from the 
+two methods.
+
+```{r}
+
+dat.neg <- dat[dat$AD_label == 0,]
+
+dat.neg$combined_prob <- dat.neg$Ridge_positive_prob + dat.neg$Attention_positive_prob
+dat.neg$diff_prob <- dat.neg$Ridge_positive_prob - dat.neg$Attention_positive_prob
+
+
+table(dat.neg$Ridge_positive_prob < best.cutoff.ridge,
+      dat.neg$Attention_positive_prob < best.cutoff.nn)
+
+```
+
+Using the optimal cutoffs, we clearly see better performance by the attention
+model, and it's relatively better in correctly identifying negative cases.
+
+Many False-Positives identified by Ridge regression were borderline cases.
+
+```{r}
+hist(dat.neg$Ridge_positive_prob[dat.neg$Ridge_positive_prob > best.cutoff.ridge],
+     breaks = seq(0.04, 1, by=0.05))
+```
+
+Many False-Positives identified by the attention model had high probabilities.
+
+```{r}
+hist(dat.neg$Attention_positive_prob[dat.neg$Attention_positive_prob > best.cutoff.nn])
+```
+
+## Scatterplot
+
+Predictions for positive sequences
+
+```{r, fig.height = 5, fig.width = 7}
+
+library(ggplot2)
+
+ggplot(dat.pos, aes(x = Ridge_positive_prob, y = Attention_positive_prob)) +
+  geom_point(alpha = 0.05) + geom_hline(yintercept = best.cutoff.nn) +
+  geom_vline(xintercept = best.cutoff.ridge) +
+  theme_bw()
+
+```
+Predictions for negative sequences
+
+
+```{r, fig.height = 5, fig.width = 7}
+
+ggplot(dat.neg, aes(x = Ridge_positive_prob, y = Attention_positive_prob)) +
+  geom_point(alpha = 0.02) + geom_hline(yintercept = best.cutoff.nn) +
+  geom_vline(xintercept = best.cutoff.ridge) +
+  theme_bw()
+
+```
+
+
+# New library
+
+For the new library, we can include 
+
+* 5000 correctly classified positive & negative sequences
+* all mis-classified positive sequences (by
+either model): `r sum(dat.pos$Ridge_positive_prob < best.cutoff.ridge | dat.pos$Attention_positive_prob < best.cutoff.nn)` sequences
+* all negative sequences mis-classified by NN only: `r sum(dat.neg$Attention_positive_prob > best.cutoff.nn & dat.neg$Ridge_positive_prob < best.cutoff.ridge)` sequences
+* 5000 sequences mis-classified by ridge regression only
+* 5000 sequences mis-classified by both methods
+
+
+# Motif search
+
+We'll look at motifs discriminating positive/negative sequences that are found
+in one method, but not the other.
+
+```{r}
+
+seqs.save <- list(tp.nn = dat.pos$sequence[dat.pos$Attention_positive_prob > best.cutoff.nn &
+                                             dat.pos$Ridge_positive_prob < best.cutoff.ridge],
+                  tp.ridge = dat.pos$sequence[dat.pos$Attention_positive_prob < best.cutoff.nn &
+                                             dat.pos$Ridge_positive_prob > best.cutoff.ridge],
+                  tp.both = dat.pos$sequence[dat.pos$Attention_positive_prob > best.cutoff.nn &
+                                             dat.pos$Ridge_positive_prob > best.cutoff.ridge],
+                  tp.none = dat.pos$sequence[dat.pos$Attention_positive_prob < best.cutoff.nn &
+                                             dat.pos$Ridge_positive_prob < best.cutoff.ridge],
+                  tn.nn = dat.neg$sequence[dat.neg$Attention_positive_prob < best.cutoff.nn &
+                                             dat.neg$Ridge_positive_prob > best.cutoff.ridge],
+                  tn.ridge = dat.neg$sequence[dat.neg$Attention_positive_prob > best.cutoff.nn &
+                                             dat.neg$Ridge_positive_prob < best.cutoff.ridge],
+                  tn.both = dat.neg$sequence[dat.neg$Attention_positive_prob < best.cutoff.nn &
+                                             dat.neg$Ridge_positive_prob < best.cutoff.ridge],
+                  tn.none = dat.neg$sequence[dat.neg$Attention_positive_prob > best.cutoff.nn &
+                                             dat.neg$Ridge_positive_prob > best.cutoff.ridge])
+
+for (i in names(seqs.save)) {
+  output.vec <- vector(mode = "character", length = length(seqs.save[[i]]) * 2)
+  for (j in 1:length(seqs.save[[i]])) {
+    output.vec[j*2 - 1] <- paste0(">seq", j)
+    output.vec[j*2] <- seqs.save[[i]][j]
+  }
+  write.table(output.vec, paste0("../data/xiao_analysis/", i, "-seqs.txt"), 
+              sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+}
+```
+
+
+Generate weblogos (not looking great)
+
+
+```{r, eval = FALSE}
+
+library(RWebLogo)
+options('python_cmd' = "C:/Users/cclass/Anaconda3/pkgs/python-3.7.6-h60c2a47_2")
+
+weblogo(seqs = seqs.save$tp.both)
+
+```
+
+Categorize and draw lineplots
+
+```{r}
+
+library(plyr)
+library(tidyr)
+
+prop.mat <- list()
+alphabet <- data.frame(AA = factor(c("R", "H", "K", "D", "E", "S", "T", "N", "Q", "C", "G", "P", "A", "V", "I", "L", "M", "F", "Y", "W"),
+                                   levels = c("R", "H", "K", "D", "E", "S", "T", "N", "Q", "C", "G", "P", "A", "V", "I", "L", "M", "F", "Y", "W")),
+                       type = factor(c(rep("Basic", 3), rep("Acidic", 2), rep("Polar", 4), rep("Special", 3), rep("Aliphatic", 5), rep("Aromatic", 3)),
+                                levels = c("Aromatic", "Acidic", "Basic", "Aliphatic", "Polar", "Special")))
+
+for (i in names(seqs.save)) {
+  print(i)
+  
+  seqs.split <- strsplit(seqs.save[[i]], split = "")
+  
+  prop.tabs <- lapply(1:length(seqs.split[[1]]), 
+                      function(j) table(factor(sapply(seqs.split, `[[`, j), levels = levels(alphabet$AA))) / 
+                        length(seqs.split))
+  
+  prop.mat[[i]] <- do.call(cbind, prop.tabs)
+  
+}
+
+```
+
+Plot by AA
+
+```{r}
+
+prop.tidy <- list()
+
+
+for (i in names(prop.mat)) {
+  prop.df <- cbind(as.data.frame(prop.mat[[i]]), alphabet)
+  prop.df$AA <- rownames(prop.df)
+  prop.tidy[[i]] <- gather(prop.df, key = "position", value = "frequency", -c("AA", "type"))
+  prop.tidy[[i]]$position <- as.numeric(substr(prop.tidy[[i]]$position, 
+                                               start = 2, stop = nchar(prop.tidy[[i]]$position)))
+}
+
+
+```
+
+```{r, fig.height = 6, fig.width = 8}
+
+ggplot(prop.tidy$tp.both, aes(x = position, y = frequency, colour = AA)) +
+  geom_smooth(se = FALSE) + theme_bw() + facet_wrap(~ type) + 
+  geom_hline(yintercept = 1/20, linetype = "dashed") +
+  ylab("Frequency of AA")
+
+
+
+#ggplot(prop.tidy$tn.nn, aes(x = position, y = frequency, colour = AA)) +
+#  geom_line() + theme_bw() + facet_wrap(~ type)
+
+```
+
+
+```{r, fig.height = 6, fig.width = 8}
+
+ggplot(prop.tidy$tp.nn, aes(x = position, y = frequency, colour = AA)) +
+  geom_smooth(se = FALSE) + theme_bw() + facet_wrap(~ type) + 
+  geom_hline(yintercept = 1/20, linetype = "dashed") +
+  ylab("Frequency of AA")
+
+```
+
+
+```{r, fig.height = 6, fig.width = 8}
+
+ggplot(prop.tidy$tp.ridge, aes(x = position, y = frequency, colour = AA)) +
+  geom_smooth(se = FALSE) + theme_bw() + facet_wrap(~ type) + 
+  geom_hline(yintercept = 1/20, linetype = "dashed") +
+  ylab("Frequency of AA")
+
+```
+
+```{r, fig.height = 6, fig.width = 8}
+
+ggplot(prop.tidy$tp.none, aes(x = position, y = frequency, colour = AA)) +
+  geom_smooth(se = FALSE) + theme_bw() + facet_wrap(~ type) + 
+  geom_hline(yintercept = 1/20, linetype = "dashed") +
+  ylab("Frequency of AA")
+
+```
+
+```{r, fig.height = 6, fig.width = 8}
+
+ggplot(prop.tidy$tn.both, aes(x = position, y = frequency, colour = AA)) +
+  geom_smooth(se = FALSE) + theme_bw() + facet_wrap(~ type) + 
+  geom_hline(yintercept = 1/20, linetype = "dashed") +
+  ylab("Frequency of AA")
+
+
+```
+
+
+```{r, fig.height = 6, fig.width = 8}
+
+ggplot(prop.tidy$tn.nn, aes(x = position, y = frequency, colour = AA)) +
+  geom_smooth(se = FALSE) + theme_bw() + facet_wrap(~ type) + 
+  geom_hline(yintercept = 1/20, linetype = "dashed") +
+  ylab("Frequency of AA")
+
+```
+
+
+```{r, fig.height = 6, fig.width = 8}
+
+ggplot(prop.tidy$tn.ridge, aes(x = position, y = frequency, colour = AA)) +
+  geom_smooth(se = FALSE) + theme_bw() + facet_wrap(~ type) + 
+  geom_hline(yintercept = 1/20, linetype = "dashed") +
+  ylab("Frequency of AA")
+
+```
+
+```{r, fig.height = 6, fig.width = 8}
+
+ggplot(prop.tidy$tn.none, aes(x = position, y = frequency, colour = AA)) +
+  geom_smooth(se = FALSE) + theme_bw() + facet_wrap(~ type) + 
+  geom_hline(yintercept = 1/20, linetype = "dashed") +
+  ylab("Frequency of AA")
+
+```
+
+
+
+## Draft figure for paper
+
+```{r}
+
+for (i in names(prop.tidy)) {
+  prop.tidy[[i]]$seqclass <- gsub("\\..*", "", i)
+  prop.tidy[[i]]$Correct <- gsub(".*\\.", "", i)
+}
+
+# Brad colors? Make distinct
+
+prop.all <- do.call(rbind, prop.tidy)
+prop.all$Correct <- factor(prop.all$Correct, levels = c("nn", "both", "ridge", "none"))
+levels(prop.all$Correct)[1:2] <- c("LSTM Network", "Both")
+prop.all$seqclass <- factor(prop.all$seqclass, levels = c("tp", "tn"))
+levels(prop.all$seqclass) <- c("Functional", "Non-Functional")
+
+prop.all$AA <- factor(prop.all$AA, levels = c("W", "F", "Y", "D", "E", "R", "K", "H"))
+
+ggplot(prop.all[prop.all$Correct %in% c("LSTM Network", "Both") &
+                  prop.all$type %in% c("Aromatic", "Acidic", "Basic"),], 
+       aes(x = position, y = frequency, colour = AA)) +
+  stat_smooth(geom = "line", aes(size = Correct, linetype = Correct), se = FALSE) +
+  theme_bw() + facet_grid(seqclass ~ type) + 
+  ylab("Frequency of AA") +
+  #scale_alpha_manual(values = c(1, 0.6)) + 
+  scale_size_manual(values = c(1.2, 1)) + 
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  scale_colour_brewer(palette = "Set1") +
+  theme(legend.key.width = unit(1,"cm"))
+ggsave("../output/NN-correct-AAfreqs.tiff",
+       height = 4, width = 7)
+
+```
+
+
+```{r}
+
+ggplot(prop.all[prop.all$Correct %in% c("LSTM Network", "Both") &
+                  prop.all$type %in% c("Aromatic", "Acidic", "Basic"),], 
+       aes(x = position, y = frequency, colour = AA)) +
+  stat_smooth(geom = "line", aes(size = Correct, linetype = Correct), se = FALSE) +
+  theme_bw() + facet_grid(seqclass ~ type) + 
+  ylab("Frequency of AA") +
+  #scale_alpha_manual(values = c(1, 0.6)) + 
+  scale_size_manual(values = c(1.2, 1)) + 
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  scale_colour_manual(values = c("#ad7f00", "#ffbb00", "#fcda7c",
+                                 "#ba0000", "#ff7070",
+                                 "#13008f", "#2200ff", "#9686fc")) +
+  theme(legend.key.width = unit(1,"cm"))
+ggsave("../output/NN-correct-AAfreqs-cols.tiff",
+       height = 4, width = 7)
+```
