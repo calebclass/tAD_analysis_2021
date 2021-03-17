@@ -1,4 +1,4 @@
-# tAD_analysis_2021
+# Analysis of Transcription Activation Domains
 
 This repository provides the scripts and figures for the analysis of transcription activation domains by Broyles et al (submitted).
 
